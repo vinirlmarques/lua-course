@@ -63,25 +63,19 @@ local function getAvailableRecipes(playerIngredients)
   end
 
   local availableRecipes = {}
-  local seen = {}
 
-  for _, playerIngredient in ipairs(playerIngredients) do
-    for _, recipe in ipairs(getRecipesByIngredientName(playerIngredient.name)) do
-      if not seen[recipe.name] then
-        seen[recipe.name] = true
+  for _, recipe in ipairs(craftRecipes) do
+    local hasAllIngredients = true
 
-        local hasAllIngredients = true
-        for _, ingredient in ipairs(recipe.ingredients) do
-          if (playerInventory[ingredient.name] or 0) < ingredient.count then
-            hasAllIngredients = false
-            break
-          end
-        end
-
-        if hasAllIngredients then
-          availableRecipes[#availableRecipes + 1] = recipe
-        end
+    for _, ingredient in ipairs(recipe.ingredients) do
+      if (playerInventory[ingredient.name] or 0) < ingredient.count then
+        hasAllIngredients = false
+        break
       end
+    end
+
+    if hasAllIngredients then
+      availableRecipes[#availableRecipes + 1] = recipe
     end
   end
 
