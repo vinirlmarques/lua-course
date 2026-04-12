@@ -2,30 +2,32 @@ local sampleNames = { "Maria", "Lucia", "Arthur", "Boris", "Newton" }
 local testN = 10000
 local users = {}
 
-function binarySearch(lowerName)
-  local inf = 1
-  local sup = #users
-  while inf <= sup do
-    local meio = math.floor((inf + sup) / 2)
-    if lowerName < users[meio].name then
-      sup = meio - 1
-    else
-      inf = meio + 1
-    end
-  end
-  return inf
-end
-
 function registerUser(name)
   local lowerName = string.lower(name)
-  local pos = binarySearch(lowerName)                       
-  table.insert(users, pos, { id = #users, name = lowerName })
+  table.insert(users, { id = #users, name = lowerName })
+  table.sort(users, function(a, b) return a.name < b.name end)
 end
 
 function registerUsers(names)
   for _,name in ipairs(names) do
     registerUser(name)
   end
+end
+
+function binarySearch(table, element)
+    local inf = 1
+    local sup = #table
+    while inf <= sup do
+        local meio = math.floor((inf + sup) / 2)
+        if element == table[meio] then
+            return true
+        elseif element < table[meio] then
+            sup = meio - 1
+        else
+            inf = meio + 1
+        end
+    end
+    return false
 end
 
 function main()
@@ -41,4 +43,8 @@ function main()
   print('Users registered: ', #users)
 end
 
+local t0 = os.clock()
 main()
+local t1 = os.clock()
+print(string.format("Tempo de execucao: %.4f segundos", t1 - t0))
+
