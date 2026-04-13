@@ -71,30 +71,12 @@ function Minesweeper:countNeighbors(row, col)
   return count
 end
 
-function Minesweeper:updateBoardView(showAll)
+function Minesweeper:revealAll()
   for i = 1, self.rows do
     for j = 1, self.cols do
-
-      local value
-
-      if self.flags[i][j] then
-        value = "F"
-
-      elseif not self.opened[i][j] then
-        if showAll and self.mines[i][j] then
-          value = "*"
-        else
-          value = "-"
-        end
-
-      elseif self.mines[i][j] then
-        value = "*"
-
-      else
-        value = tostring(self:countNeighbors(i, j))
+      if self.mines[i][j] and not self.flags[i][j] then
+        self.board:setValue(i, j, "*")
       end
-
-      self.board:setValue(i, j, value)
     end
   end
 end
@@ -103,11 +85,18 @@ function Minesweeper:placeFlag(row, col)
   if not self.flags[row][col] then
     self.flags[row][col] = true
     self.flagsPlaced = self.flagsPlaced + 1
+    self.board:setValue(row, col, "F")
   end
 end
 
 function Minesweeper:openCell(row, col)
   self.opened[row][col] = true
+
+  if self.mines[row][col] then
+    self.board:setValue(row, col, "*")
+  else
+    self.board:setValue(row, col, tostring(self:countNeighbors(row, col)))
+  end
 end
 
 function Minesweeper:runCheat()
@@ -135,14 +124,12 @@ function Minesweeper:runCheat()
       self:openCell(i, j)
     end
 
-    self:updateBoardView(true)
     self.board:draw()
   end
 end
 
 function Minesweeper:runGame()
   while true do
-    self:updateBoardView()
     self.board:draw()
 
     io.write("Row: ")
@@ -161,7 +148,7 @@ function Minesweeper:runGame()
       else
         if self.mines[row][col] then
           print("BOOM! Game Over!")
-          self:updateBoardView(true)
+          self:revealAll()
           self.board:draw()
           break
         end
@@ -170,7 +157,7 @@ function Minesweeper:runGame()
 
         if self:checkWin() then
           print("You win!")
-          self:updateBoardView(true)
+          self:revealAll()
           self.board:draw()
           break
         end
