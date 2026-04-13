@@ -128,9 +128,15 @@ function Minesweeper:runCheat()
   end
 end
 
+function Minesweeper:printStatus()
+  local elapsed = os.time() - self.startTime
+  print('Time: ' .. elapsed .. 's | Flags: ' .. self.flagsPlaced .. '/' .. self.totalBombs)
+end
+
 function Minesweeper:runGame()
   while true do
     self.board:draw()
+      self:printStatus()
 
     io.write("Row: ")
     local row = tonumber(io.read())
