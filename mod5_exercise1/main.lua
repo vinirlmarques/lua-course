@@ -1,6 +1,6 @@
-require('helpers')
+require('./mod5_exercise1/helpers')
 
-local const = require('const')
+local const = require('./mod5_exercise1/const')
 
 function main()
   print('Welcome to Game Platform\n')

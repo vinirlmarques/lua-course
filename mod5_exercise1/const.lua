@@ -2,7 +2,7 @@ local const = {
   games = {
     {
       name = 'Sudoku',
-      filename = 'sudoku',
+      filename = './mod5_exercise1/sudoku',
     }
   }
 }

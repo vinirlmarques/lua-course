@@ -1,4 +1,4 @@
-local Board = require('board')
+local Board = require('./mod5_exercise1/board')
 local Sudoku = {}
 
 function Sudoku.create(config)
