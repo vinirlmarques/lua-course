@@ -111,26 +111,33 @@ function Minesweeper:openCell(row, col)
 end
 
 function Minesweeper:runCheat()
-  local step = 0
-
+  local cells = {}
+  -- collect all board coordinates into a flat list
   for i = 1, self.rows do
     for j = 1, self.cols do
-      
-      if self.mines[i][j] then
-        self:placeFlag(i, j)
-      else
-        self:openCell(i, j)
-      end
-
-      step = step + 1
-
-      self:updateBoardView()
-      self.board:draw()
+      cells[#cells + 1] = { i, j }
     end
   end
 
-  self:updateBoardView(true)
-  self.board:draw()
+  -- shuffle the list
+  for k = #cells, 2, -1 do
+    local r = math.random(1, k)
+    cells[k], cells[r] = cells[r], cells[k]
+  end
+
+  -- open or flag each cell in random order
+  for _, cell in ipairs(cells) do
+    local i, j = cell[1], cell[2]
+
+    if self.mines[i][j] then
+      self:placeFlag(i, j)
+    else
+      self:openCell(i, j)
+    end
+
+    self:updateBoardView(true)
+    self.board:draw()
+  end
 end
 
 function Minesweeper:runGame()
