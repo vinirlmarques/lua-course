@@ -20,20 +20,26 @@ function Board.create(rows, columns, defaultValue)
 end
 
 function Board:draw()
-  local text = ' '
-  for i=1,self.columns do
-    text = text .. ' ' .. tostring(i)
+  local lines = {}
+
+  local header = { " " }
+  for i = 1, self.columns do
+    header[#header + 1] = tostring(i)
   end
-  text = text .. '\n'
-  for i=1,self.rows do
+  lines[#lines + 1] = table.concat(header, " ")
+
+  for i = 1, self.rows do
     local row = self.data[i]
-    text = text .. tostring(i)
-    for j=1,#row do
-      text = text ..' ' .. row[j]
+    local rowText = { tostring(i) }
+
+    for j = 1, self.columns do
+      rowText[#rowText + 1] = row[j]
     end
-    text = text .. '\n'
+
+    lines[#lines + 1] = table.concat(rowText, " ")
   end
-  print(text)
+
+  print(table.concat(lines, "\n"))
 end
 
 function Board:setValue(row, column, value)

@@ -1,4 +1,4 @@
-local Board = require('./mod5_exercise1/board')
+local Board = require('board')
 local TicTacToe = {}
 
 function TicTacToe.create(config)
