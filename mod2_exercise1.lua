@@ -19,15 +19,18 @@ end
 
 function table.tostring(t, maxDepth, indent)
   local indent = indent or '  '
+  local visited = {}
 
   local function stringify(value, depth)
     if depth > maxDepth then
-      return '{..}'
+      return '"{..}"'
+    end
+  
+    if type(value) ~= 'table' or visited[value] then
+      return '"' .. tostring(value) .. '"'
     end
     
-    if type(value) ~= 'table' then
-      return tostring(value)
-    end
+    visited[value] = true
     
     local lines = { '{\n' }
 
@@ -37,15 +40,36 @@ function table.tostring(t, maxDepth, indent)
       totalElements = totalElements + 1
     end
 
+    local isArray = false
+    local arrayCounter = 0
+
+    -- verify if the table is an array
+    for key, value in pairs(value) do
+      arrayCounter = arrayCounter + 1
+      if type(key) ~= 'number' or arrayCounter ~= key then
+        isArray = false
+        break
+      elseif arrayCounter == key then
+        isArray = true
+      end
+    end
+
 
     local currentElement = 0
     for key, val in pairs(value) do
       currentElement = currentElement + 1
       local line
-      if type(key) == 'number' then
+      if isArray then
         line = indent:rep(depth)
-      else  
-        line = indent:rep(depth) .. tostring(key) .. ' = '
+      else
+        local keyStr = tostring(key)
+        if type(key) == 'number' then
+          line = indent:rep(depth) .. '[' .. keyStr .. '] = '
+        elseif string.find(keyStr, ' ') then
+          line = indent:rep(depth) .. '["' .. keyStr .. '"] = '
+        else
+          line = indent:rep(depth) .. keyStr .. ' = '
+        end
       end
 
       -- if the value is a table, recursively stringify it     
@@ -65,7 +89,7 @@ function table.tostring(t, maxDepth, indent)
     end
     
     -- close the table with the appropriate indentation
-    table.insert(lines, indent:rep(depth - 1) .. '}\n')
+    table.insert(lines, indent:rep(depth - 1) .. '}')
 
     return table.concat(lines)
   end
@@ -73,9 +97,10 @@ function table.tostring(t, maxDepth, indent)
   return stringify(t, 1)
 end
 
+
 local function main()
   local rootElement = setupRootElement()
-  print(table.tostring(rootElement, 3, '  '))
+  print(table.tostring(rootElement, 4, '  '))
 end
 
 main()
