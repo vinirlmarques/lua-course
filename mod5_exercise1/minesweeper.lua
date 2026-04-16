@@ -21,12 +21,6 @@ function Minesweeper.create(config)
     minesweeper.opened[i] = {}
     minesweeper.flags[i] = {}
     minesweeper.mines[i] = {}
-
-    for j = 1, minesweeper.cols do
-      minesweeper.opened[i][j] = false
-      minesweeper.flags[i][j] = false
-      minesweeper.mines[i][j] = false
-    end
   end
 
   local bombs = minesweeper.totalBombs
@@ -82,20 +76,40 @@ function Minesweeper:revealAll()
 end
 
 function Minesweeper:placeFlag(row, col)
-  if not self.flags[row][col] then
-    self.flags[row][col] = true
-    self.flagsPlaced = self.flagsPlaced + 1
-    self.board:setValue(row, col, "F")
-  end
+  self.flags[row][col] = true
+  self.flagsPlaced = self.flagsPlaced + 1
+  self.board:setValue(row, col, "F")
+  return true
 end
 
 function Minesweeper:openCell(row, col)
+  if row < 1 or row > self.rows or col < 1 or col > self.cols then
+    return
+  end
+
+  if self.opened[row][col] or self.flags[row][col] then
+    return
+  end
+
   self.opened[row][col] = true
 
   if self.mines[row][col] then
     self.board:setValue(row, col, "*")
   else
-    self.board:setValue(row, col, tostring(self:countNeighbors(row, col)))
+    local neighbors = self:countNeighbors(row, col)
+    self.board:setValue(row, col, tostring(neighbors))
+
+    -- recursively open neighbors if there are no bombs around
+    if neighbors == 0 then
+      for i = row - 1, row + 1 do
+        for j = col - 1, col + 1 do
+          if i ~= row or j ~= col then
+            self:openCell(i, j)
+          end
+        end
+      end
+    end
+    
   end
 end
 
@@ -145,8 +159,15 @@ function Minesweeper:runGame()
     local col = tonumber(io.read())
 
     if self:validateInput(row, col) then
-      io.write("Action (o=open, f=flag): ")
-      local action = io.read()
+      local action = nil
+      while action ~= "o" and action ~= "f" do
+        io.write("Action (o=open, f=flag): ")
+        action = io.read()
+        action = action:lower()
+        if action ~= "o" and action ~= "f" then
+          print("Invalid action! Please enter 'o' to open or 'f' to flag.")
+        end
+      end
 
       if action == "f" then
         self:placeFlag(row, col)
@@ -183,6 +204,11 @@ function Minesweeper:validateInput(row, col)
     return false
   end
 
+  if self.flags[row][col] then
+    print("Cell has a flag!")
+    return false
+  end
+
   if self.opened[row][col] then
     print("Cell already opened!")
     return false
@@ -203,8 +229,6 @@ function Minesweeper:checkWin()
 end
 
 function Minesweeper:run()
-  print('Minesweeper is starting...')
-
   if self.config and self.config.cheatMode then
     self:runCheat()
   else

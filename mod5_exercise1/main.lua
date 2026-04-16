@@ -15,21 +15,23 @@ function main()
   local gameId = readNumber('Choose the game: ', 1, #games, 'Invalid choice. Try again.')
   local gameConfig = games[gameId]
 
-  local difficulties = const.difficulties
-  local difficultySelected = false
+  if gameConfig.difficulties then
+    local difficulties = gameConfig.difficulties
+    local difficultySelected = false
 
-  while not difficultySelected do
-    print('Choose the difficulty:')
-    for i,difficulty in ipairs(difficulties) do
-      print(i .. ' - ' .. difficulty.name)
-    end
+    while not difficultySelected do
+      print('Choose the difficulty:')
+      for i,difficulty in ipairs(difficulties) do
+        print(i .. ' - ' .. difficulty.name)
+      end
 
-    local difficultyId = readNumber('Choose the difficulty: ', 1, #difficulties + 1, 'Invalid choice. Try again.')
-    if difficultyId == #difficulties + 1 then
-      gameConfig.cheatMode = true
-    else
-      gameConfig.difficulty = difficulties[difficultyId]
-      difficultySelected = true
+      local difficultyId = readNumber('Choose the difficulty: ', 1, #difficulties + 1, 'Invalid choice. Try again.')
+      if difficultyId == #difficulties + 1 then
+        gameConfig.cheatMode = true
+      else
+        gameConfig.difficulty = difficulties[difficultyId]
+        difficultySelected = true
+      end
     end
   end
 
