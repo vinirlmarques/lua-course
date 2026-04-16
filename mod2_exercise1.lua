@@ -11,6 +11,7 @@ local function setupRootElement()
     { id = 'child3', zOrder = 3, visible = false, clickVolume = 0.02, parent = root },
   }
   root.savedIndexes = { 4, 1, 3, 2, 5, total = 5 }
+  root.array = {[1] = "a", [3] = "b" }
   root.layoutPositions = { 'top', 'left', 'bottom', 'right' }
   root.innerLengths = { x = 1, l = { x = 2, l = { x = 3, l = { x = 4, l = { x = 5, l = { x = 6 } } } } } }
 
@@ -98,9 +99,24 @@ function table.tostring(t, maxDepth, indent)
 end
 
 
+local function testValidTable(t)
+  local str = 'return ' .. table.tostring(t, 4, '  ')
+  local func, err = load(str)
+  if func then
+    print('✓ A tabela serializada é válida em Lua!')
+    return true
+  else
+    print('✗ A tabela serializada NÃO é válida em Lua:')
+    print('  Erro: ' .. err)
+    return false
+  end
+end
+
 local function main()
   local rootElement = setupRootElement()
   print(table.tostring(rootElement, 4, '  '))
+  print('\n--- Testando validação ---')
+  testValidTable(rootElement)
 end
 
 main()
